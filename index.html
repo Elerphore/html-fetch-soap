@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Bootstrap demo</title>
+    <link crossorigin="anonymous" href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<form id="form" class="container w-25 mt-5">
+    <div class="mb-3">
+        <label class="form-label" for="login">Login</label>
+        <input aria-describedby="emailHelp" class="form-control" id="login" name="login" type="text">
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-control" id="password" name="password" type="password">
+    </div>
+    <div class="d-grid gap-2">
+        <button class="btn btn-outline-dark" type="submit">Authorize</button>
+    </div>
+
+    <div id="status" class="mt-2"></div>
+
+</form>
+
+<script>
+    const formEl = document.getElementById('form');
+
+    formEl.addEventListener('submit', event => {
+        event.preventDefault();
+
+        const statusEl = document.getElementById('status');
+
+        const formData = new FormData(formEl);
+        const login = formData.get('login')
+        const password = formData.get('password')
+
+        const params = new URLSearchParams();
+
+        params.set('func', 'Login')
+        params.set('params', `UserName=${login}&Password=${password}&IPs=`)
+
+        const url = "http://isapi.mekashron.com/soapclient/soapclient.php?URL=http://isapi.icu-tech.com/icutech-test.dll%2Fwsdl%2FIICUTech"
+
+        fetch(url, {method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, body: params})
+            .then(resp => resp.json())
+            .then(resp => JSON.parse(resp.ret))
+            .then(resp => {
+                statusEl.innerHTML = defineStatus(resp)
+            })
+            .catch(err => {
+                statusEl.innerHTML =
+                    '<div class="alert alert-danger" role="alert">\n' +
+                    `  Some error occured` +
+                    `  ${err}` +
+                    '</div>'
+            })
+    });
+
+    function defineStatus(resp) {
+        if(resp.ResultCode != null && resp.ResultCode < 0) {
+            return '<div class="alert alert-danger" role="alert">\n' +
+                    `  Some error occured:` +
+                    `  ${resp.ResultMessage}` +
+                    '</div>'
+        }
+        return '<div class="alert alert-success" role="alert">\n' +
+                ` <p>EntityId: ${resp.EntityId}\n</p>` +
+                ` <p>FirstName: ${resp.FirstName}\n</p>` +
+                ` <p>LastName: ${resp.LastName}\n</p>` +
+                ` <p>Company: ${resp.Company}\n</p>` +
+                ` <p>Address: ${resp.Address}\n</p>` +
+                ` <p>City: ${resp.City}\n</p>` +
+                ` <p>Country: ${resp.Country}\n</p>` +
+                ` <p>Phone: ${resp.Phone}\n</p>` +
+                ` <p>Mobile: ${resp.Mobile}\n</p>` +
+                ` <p>Email: ${resp.Email}\n</p>` +
+                ` <p>EmailConfirm: ${resp.EmailConfirm}\n</p>` +
+                ` <p>MobileConfirm: ${resp.MobileConfirm}\n</p>` +
+                ` <p>CountryID: ${resp.CountryID}\n</p>` +
+                ` <p>Status: ${resp.Status}\n</p>` +
+                ` <p>FTPHost: ${resp.FTPHost}\n</p>` +
+                ` <p>FTPPort: ${resp.FTPPort}\n</>` +
+                '</div>'
+    }
+
+</script>
+</body>
+</html>
